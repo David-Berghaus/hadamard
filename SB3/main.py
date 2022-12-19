@@ -12,14 +12,14 @@ if __name__ == "__main__":
     N = 20
     lr = 5e-5
     policy = "MlpPolicy"
-    algorithm = "DQN"
-    flipping_env = False
+    algorithm = "PPO"
+    flipping_env = True
     num_envs = 1
-    torch_num_threads = 1
+    torch_num_threads = 24
     iteration_training_steps = 1000000
 
-    #base_dir = ""
-    base_dir = "/cephfs/user/s6ddberg/Hadamard/"
+    base_dir = ""
+    # base_dir = "/cephfs/user/s6ddberg/Hadamard/"
     time_stamp = datetime.now().strftime("%d_%m_%Y__%H_%M_%S") #If you want to load a previous model, you have to enter the time stamp here
     base_path = base_dir + "data/" + "/" + str(N) + "/" + algorithm + "/" + time_stamp + "/"
     os.makedirs(base_path, exist_ok=True)
