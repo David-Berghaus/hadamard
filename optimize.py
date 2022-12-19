@@ -25,15 +25,15 @@ from training import train_network
 N = 35   #The dimension of the Hadamard matrix is 4*N
 MYN = 4*N  #The length of the word we are generating.
 
-base_dir = ""
-#base_dir = "/cephfs/user/s6ddberg/Hadamard/"
+#base_dir = ""
+base_dir = "/cephfs/user/s6ddberg/Hadamard/"
 time_stamp = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
-data_path = base_dir + "data/" + str(N) + "/" + time_stamp + "/"
+data_path = base_dir + "data/" + "/" + str(N) + "/" + "CEM" + "/" + time_stamp + "/"
 Path(data_path).mkdir(parents=True, exist_ok=True)
-#torch.set_num_threads(6)
+torch.set_num_threads(1)
 
 
-LEARNING_RATE = 1e-5 #Increase this to make convergence faster, decrease if the algorithm gets stuck in local optima too often.
+LEARNING_RATE = 5e-5 #Increase this to make convergence faster, decrease if the algorithm gets stuck in local optima too often.
 n_sessions = 1024 #number of new sessions per iteration
 percentile = 90 #top 100-X percentile we are learning from
 super_percentile = 91 #top 100-X percentile that survives to next iteration

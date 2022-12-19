@@ -4,13 +4,14 @@ import numpy as np
 
 class HadamardMlpEnv(gym.Env):
     """Custom Environment for generating binary vectors. This environment is used for the MLP model because it contains a one-hot encoded step count."""
-    def __init__(self, N):
+    def __init__(self, N, dir=""):
         super(HadamardMlpEnv, self).__init__()
         # Define action and observation space
         self.action_space = spaces.Discrete(2) # 0 or 1
         self.observation_space = spaces.MultiBinary(n=2*4*N) #Flattened v vectors and one-hot encoded step
         self.observation_space_np = np.zeros(2*4*N, dtype=np.int8)
         self.N = N
+        self.dir = dir
         self.step_count = 0
         self.lowest_recorded_epsilon = 100000000000
         self.reward_factor = None
@@ -32,8 +33,12 @@ class HadamardMlpEnv(gym.Env):
             if score < self.lowest_recorded_epsilon:
                 self.lowest_recorded_epsilon = score
                 print(f"New lowest epsilon: {score}")
+                with open(self.dir + "/best_scores.txt", "w") as f:
+                    f.write(str(score) + "\n")
                 if score < 0.1:
                     print(self.observation_space_np)
+                    with open(self.dir + "/best_states.txt", "w") as f:
+                        f.write(str(self.observation_space_np) + "\n")
         self.step_count += 1
         info = {}
         return self.observation_space_np, reward, done, info
