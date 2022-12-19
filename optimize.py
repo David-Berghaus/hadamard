@@ -26,9 +26,11 @@ N = 35   #The dimension of the Hadamard matrix is 4*N
 MYN = 4*N  #The length of the word we are generating.
 
 base_dir = ""
+#base_dir = "/cephfs/user/s6ddberg/Hadamard/"
 time_stamp = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
 data_path = base_dir + "data/" + str(N) + "/" + time_stamp + "/"
 Path(data_path).mkdir(parents=True, exist_ok=True)
+#torch.set_num_threads(6)
 
 
 LEARNING_RATE = 1e-5 #Increase this to make convergence faster, decrease if the algorithm gets stuck in local optima too often.
