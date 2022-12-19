@@ -9,17 +9,17 @@ import os
 from env import HadamardMlpEnv, HadamardMlpFlippingEnv
 
 if __name__ == "__main__":
-    N = 20
+    N = 35
     lr = 5e-5
     policy = "MlpPolicy"
-    algorithm = "PPO"
+    algorithm = "DQN"
     flipping_env = True
     num_envs = 1
-    torch_num_threads = 24
+    torch_num_threads = 6
     iteration_training_steps = 1000000
 
-    base_dir = ""
-    # base_dir = "/cephfs/user/s6ddberg/Hadamard/"
+    # base_dir = ""
+    base_dir = "/cephfs/user/s6ddberg/Hadamard/"
     time_stamp = datetime.now().strftime("%d_%m_%Y__%H_%M_%S") #If you want to load a previous model, you have to enter the time stamp here
     base_path = base_dir + "data/" + "/" + str(N) + "/" + algorithm + "/" + time_stamp + "/"
     os.makedirs(base_path, exist_ok=True)
