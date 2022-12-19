@@ -74,16 +74,18 @@ class HadamardMlpFlippingEnv(gym.Env):
             if self.reward_factor is None:
                 self.reward_factor = int(score/10.0) #To Do: check if this is a good reward factor
             reward = self.reward_factor/(self.reward_factor+score)
-            if score < self.lowest_recorded_epsilon:
-                self.lowest_recorded_epsilon = score
-                self.best_observation_space = np.copy(self.observation_space_np)
-                print(f"New lowest epsilon: {score}")
-                with open(self.dir + "/best_scores.txt", "a") as f:
-                    f.write(str(score) + "\n")
-                if score < 0.1:
-                    print(self.observation_space_np)
-                    with open(self.dir + "/best_states.txt", "a") as f:
-                        f.write(str(self.observation_space_np) + "\n")
+            if score <= self.lowest_recorded_epsilon:
+                if score == self.lowest_recorded_epsilon:
+                    self.best_observation_space = np.copy(self.observation_space_np) #Update state to avoid getting stuck in local minima
+                else: #We got a truly better new solution
+                    self.lowest_recorded_epsilon = score
+                    print(f"New lowest epsilon: {score}")
+                    with open(self.dir + "/best_scores.txt", "a") as f:
+                        f.write(str(score) + "\n")
+                    if score < 0.1:
+                        print(self.observation_space_np)
+                        with open(self.dir + "/best_states.txt", "a") as f:
+                            f.write(str(self.observation_space_np) + "\n")
         else:
             reward = 0 #It is important that the reward is 0 here because otherwise we would encourage the agent to play long games
         self.step_count += 1
@@ -125,16 +127,18 @@ class HadamardMlpFlippingEnv(gym.Env):
 #         # Provide disccounted reward if the game is not done
 #         if not done:
 #             reward = reward/self.max_steps
-#         if score < self.lowest_recorded_epsilon:
-#             self.lowest_recorded_epsilon = score
-#             self.best_observation_space = np.copy(self.observation_space_np)
-#             print(f"New lowest epsilon: {score}")
-#             with open(self.dir + "/best_scores.txt", "a") as f:
-#                 f.write(str(score) + "\n")
-#             if score < 0.1:
-#                 print(self.observation_space_np)
-#                 with open(self.dir + "/best_states.txt", "a") as f:
-#                     f.write(str(self.observation_space_np) + "\n")
+#         if score <= self.lowest_recorded_epsilon:
+#             if score == self.lowest_recorded_epsilon:
+#                 self.best_observation_space = np.copy(self.observation_space_np) #Update state to avoid getting stuck in local minima
+#             else: #We got a truly better new solution
+#                 self.lowest_recorded_epsilon = score
+#                 print(f"New lowest epsilon: {score}")
+#                 with open(self.dir + "/best_scores.txt", "a") as f:
+#                     f.write(str(score) + "\n")
+#                 if score < 0.1:
+#                     print(self.observation_space_np)
+#                     with open(self.dir + "/best_states.txt", "a") as f:
+#                         f.write(str(self.observation_space_np) + "\n")
 #         self.step_count += 1
 #         info = {}
 #         return self.observation_space_np, reward, done, info

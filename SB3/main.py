@@ -2,7 +2,8 @@ from datetime import datetime
 from stable_baselines3 import A2C, PPO, DQN 
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.logger import configure
-from stable_baselines3.common.vec_env import SubprocVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
+from stable_baselines3.common.monitor import Monitor
 import torch
 import os
 
@@ -12,9 +13,9 @@ if __name__ == "__main__":
     N = 35
     lr = 5e-5
     policy = "MlpPolicy"
-    algorithm = "DQN"
-    flipping_env = True
-    num_envs = 1
+    algorithm = "PPO"
+    flipping_env = False
+    num_envs = 6
     torch_num_threads = 6
     iteration_training_steps = 1000000
 
@@ -30,11 +31,13 @@ if __name__ == "__main__":
     if not flipping_env:
         if num_envs > 1:
             E = SubprocVecEnv([lambda: HadamardMlpEnv(N, dir=base_path) for i in range(num_envs)]) #Somehow tensorboard does not log correctly here
+            E = VecMonitor(E)
         else:
             E = HadamardMlpEnv(N, dir=base_path)
     else:
         if num_envs > 1:
             E = SubprocVecEnv([lambda: HadamardMlpFlippingEnv(N, dir=base_path) for i in range(num_envs)]) #Somehow tensorboard does not log correctly here
+            E = VecMonitor(E)
         else:
             E = HadamardMlpFlippingEnv(N, dir=base_path)
     if algorithm == "PPO":
