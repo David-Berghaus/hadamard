@@ -11,15 +11,15 @@ from env import HadamardMlpEnv, HadamardMlpFlippingEnv
 
 if __name__ == "__main__":
     N = 35
-    lr = 5e-5
+    lr = 5e-3
     policy = "MlpPolicy"
-    algorithm = "PPO"
-    flipping_env = False
-    num_envs = 6
+    algorithm = "DQN"
+    flipping_env = True
+    num_envs = 56
     torch_num_threads = 6
-    iteration_training_steps = 1000000
+    iteration_training_steps = 500000
 
-    # base_dir = ""
+    #base_dir = ""
     base_dir = "/cephfs/user/s6ddberg/Hadamard/"
     time_stamp = datetime.now().strftime("%d_%m_%Y__%H_%M_%S") #If you want to load a previous model, you have to enter the time stamp here
     base_path = base_dir + "data/" + "/" + str(N) + "/" + algorithm + "/" + time_stamp + "/"
@@ -30,16 +30,18 @@ if __name__ == "__main__":
 
     if not flipping_env:
         if num_envs > 1:
-            E = SubprocVecEnv([lambda: HadamardMlpEnv(N, dir=base_path) for i in range(num_envs)]) #Somehow tensorboard does not log correctly here
+            E = SubprocVecEnv([lambda: HadamardMlpEnv(N, dir=base_path) for i in range(num_envs)])
             E = VecMonitor(E)
         else:
             E = HadamardMlpEnv(N, dir=base_path)
+            E = Monitor(E)
     else:
         if num_envs > 1:
-            E = SubprocVecEnv([lambda: HadamardMlpFlippingEnv(N, dir=base_path) for i in range(num_envs)]) #Somehow tensorboard does not log correctly here
+            E = SubprocVecEnv([lambda: HadamardMlpFlippingEnv(N, dir=base_path) for i in range(num_envs)])
             E = VecMonitor(E)
         else:
             E = HadamardMlpFlippingEnv(N, dir=base_path)
+            E = Monitor(E)
     if algorithm == "PPO":
         policy_kwargs = dict(activation_fn=torch.nn.ReLU, net_arch=[dict(pi=[256, 256], vf=[256, 256])]) #Custom actor (pi) and value function (vf)
         if os.path.exists(base_path + "model.zip"):
@@ -56,12 +58,17 @@ if __name__ == "__main__":
         policy_kwargs = dict(activation_fn=torch.nn.ReLU, net_arch=[256, 256]) #No policy for DQN
         if os.path.exists(base_path + "model.zip"):
             print("Loaded model")
-            model = DQN.load(base_path + "model.zip", env=E, learning_rate=lr, verbose=1, policy_kwargs=policy_kwargs)
+            model = DQN.load(base_path + "model.zip", env=E, learning_rate=lr, verbose=1, learning_starts=0, policy_kwargs=policy_kwargs)
         else:
-            model = DQN(policy, E, learning_rate=lr, verbose=1, policy_kwargs=policy_kwargs)
+            model = DQN(policy, E, learning_rate=lr, verbose=1, learning_starts=0, policy_kwargs=policy_kwargs)
     model.set_logger(new_logger)
     torch.set_num_threads(torch_num_threads)
 
     while True:
         model.learn(iteration_training_steps)
         model.save(base_path + "model")
+        obs = E.reset()
+        #Play one game with the greedy policy
+        for i in range(4*N):
+            action, _states = model.predict(obs, deterministic=True)
+            obs, rewards, dones, info = E.step(action)
