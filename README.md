@@ -1,0 +1,1 @@
+Some tests that I ran for constructing Hadamard matrices using deep reinforcement learning. We test the crossentropy method as well as several sophisticated RL algorithms using stable baselines. The approach for the CEM is based on [this](https://github.com/dpaleka/cross-entropy-for-combinatorics) repository.
